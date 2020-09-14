@@ -9,11 +9,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val protobufVersion = "3.13.0"
 val grpcVersion = "1.31.1"
 val grpcKotlinVersion = "0.1.5"
+val kotestVersion = "4.2.5"
 
 plugins {
     application
     kotlin("jvm") version "1.4.10"
     id("com.google.protobuf") version "0.8.13"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 buildscript {
@@ -48,7 +50,9 @@ dependencies {
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
 
-    testImplementation(kotlin("test-junit5"))
+    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion") // for kotest framework
+    testImplementation("io.kotest:kotest-assertions-core:$kotestVersion") // for kotest core jvm assertions
+    testImplementation("io.kotest:kotest-property:$kotestVersion") // for kotest property test
 }
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "1.8"
@@ -88,4 +92,23 @@ protobuf {
             }
         }
     }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs("build/generated/source/proto/main")
+            srcDirs("build/generated/source/proto/main")
+        }
+    }
+}
+
+ktlint {
+    filter {
+        exclude { element -> element.file.path.contains("generated") }
+    }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

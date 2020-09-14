@@ -1,23 +1,17 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 option java_multiple_files = true;
 option java_package = "com.nedellis.azalea";
 option java_outer_classname = "HelloWorldProto";
 
 package azalea;
 
-// The greeting service definition.
-service Greeter {
-  // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
+message Table {
+  map<string, int64> entries = 1;
 }
 
-// The request message containing the user's name.
-message HelloRequest {
-  string name = 1;
-}
-
-// The response message containing the greetings
-message HelloReply {
-  string message = 1;
+service Health {
+  rpc Update(Table) returns (google.protobuf.Empty) {}
 }
