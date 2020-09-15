@@ -33,6 +33,8 @@ private val log = LoggerFactory.getLogger("Main")
  */
 class Azalea(val address: URI, private val services: Children, val config: Config) {
     private val tableLock = Mutex()
+
+    // Internally considered immutable, replaced if modified in any way
     private var table = Table.newBuilder().putEntries(address.toString(), 0).build()
 
     init {

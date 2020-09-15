@@ -27,4 +27,22 @@ class TableTest : StringSpec({
         val table = Table.newBuilder().putEntries("a", 1).build()
         table.incrementSelf("a").entries shouldBe mapOf("a" to 2)
     }
+
+    "Prune with nonexistent old value keeps existent" {
+        val table = Table.newBuilder().putEntries("a", 0).build()
+        val old = Table.getDefaultInstance()
+        table.pruneStale(old).entries shouldBe mapOf("a" to 0)
+    }
+
+    "Prune with equivalent old value removes" {
+        val table = Table.newBuilder().putEntries("a", 0).build()
+        val old = Table.newBuilder().putEntries("a", 0).build()
+        table.pruneStale(old).entries shouldBe mapOf()
+    }
+
+    "Prune with older old value keeps existent" {
+        val table = Table.newBuilder().putEntries("a", 1).build()
+        val old = Table.newBuilder().putEntries("a", 0).build()
+        table.pruneStale(old).entries shouldBe mapOf("a" to 1)
+    }
 })

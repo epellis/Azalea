@@ -21,3 +21,11 @@ fun Table.incrementSelf(localAddress: String): Table {
     ours[localAddress] = ours[localAddress]?.inc()
     return Table.newBuilder().putAllEntries(ours).build()
 }
+
+/**
+ * Return a new table with all elements in [this] that are at least 1 heartbeat higher than [old]
+ */
+fun Table.pruneStale(old: Table): Table {
+    val new = this.entriesMap.toMap().filter { it.value > old.entriesMap[it.key] ?: -1 }
+    return Table.newBuilder().putAllEntries(new).build()
+}
