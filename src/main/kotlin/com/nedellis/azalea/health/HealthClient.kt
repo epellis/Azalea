@@ -12,7 +12,7 @@ class HealthClient : Providable {
     override lateinit var parent: Azalea
     private val connections = ConcurrentHashMap<URI, HealthGrpcKt.HealthCoroutineStub>()
 
-    suspend fun update(addr: URI, table: Table) {
+    suspend fun updateTheirTable(addr: URI, table: Table) {
         connections.getOrDefault(
             addr,
             Clients.newClient(addr, HealthGrpcKt.HealthCoroutineStub::class.java)

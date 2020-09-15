@@ -9,5 +9,5 @@ import java.net.URI
 fun register(address: URI, redisURI: URI): List<URI> {
     val jedis = Jedis(redisURI)
     jedis.sadd("members", address.toString())
-    return jedis.smembers("members").map { URI(it) }
+    return jedis.smembers("members").map { URI(it) }.filter { it != address }
 }

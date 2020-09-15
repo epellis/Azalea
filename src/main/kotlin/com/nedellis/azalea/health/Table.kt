@@ -7,7 +7,7 @@ import kotlin.math.max
  * Update this table with the other's entries.
  * If the entry is in both tables, keep the higher value
  */
-fun Table.update(other: Table): Table {
+fun Table.updateTheirTable(other: Table): Table {
     val ours = this.entriesMap.toMap()
     val theirs = other.entriesMap.toMap()
     val both = (ours.keys + theirs.keys)

@@ -2,9 +2,10 @@ package com.nedellis.azalea
 
 import com.nedellis.azalea.health.HealthClient
 import com.nedellis.azalea.health.HealthServiceImpl
-import com.nedellis.azalea.health.update
+import com.nedellis.azalea.health.updateTheirTable
 import com.nedellis.azalea.registration.register
 import com.typesafe.config.Config
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.slf4j.LoggerFactory
@@ -33,10 +34,18 @@ class Azalea(val address: URI, services: Children, val conf: Config) {
     init {
         services.forEach { it.provide(this) }
         val members = register(address, URI(conf.getString("azalea.redis-uri")))
-        log.info("Other Members: $members")
+        runBlocking {
+            members.forEach { member ->
+                try {
+                    services.healthClient.updateTheirTable(member, table)
+                } catch (e: Throwable) {
+                    log.error("Could not connect to $member, $e")
+                }
+            }
+        }
     }
 
-    suspend fun updateTable(other: Table) = tableLock.withLock {
-        table = table.update(other)
+    suspend fun updateOurTable(other: Table) = tableLock.withLock {
+        table = table.updateTheirTable(other)
     }
 }

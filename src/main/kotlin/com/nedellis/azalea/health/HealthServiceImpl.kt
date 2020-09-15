@@ -13,7 +13,7 @@ class HealthServiceImpl : HealthGrpcKt.HealthCoroutineImplBase(), Providable {
     override lateinit var parent: Azalea
 
     override suspend fun update(table: Table): Empty {
-        parent.updateTable(table)
+        parent.updateOurTable(table)
         return Empty.getDefaultInstance()
     }
 }

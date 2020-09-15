@@ -9,10 +9,7 @@ import com.linecorp.armeria.server.logging.LoggingService
 import com.nedellis.azalea.health.HealthClient
 import com.nedellis.azalea.health.HealthServiceImpl
 import com.typesafe.config.ConfigFactory
-import org.slf4j.LoggerFactory
 import java.net.URI
-
-private val log = LoggerFactory.getLogger("Main")
 
 fun main(args: Array<String>) {
     val healthServer = HealthServiceImpl()
