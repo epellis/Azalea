@@ -32,8 +32,11 @@ class Azalea(val address: URI, services: Children, val conf: Config) {
     private var table = Table.newBuilder().putEntries(address.toString(), 0).build()
 
     init {
+        log.info("Starting Azalea Member at $address")
+
         services.forEach { it.provide(this) }
         val members = register(address, URI(conf.getString("azalea.redis-uri")))
+        log.info("Other Members: $members")
         runBlocking {
             members.forEach { member ->
                 try {

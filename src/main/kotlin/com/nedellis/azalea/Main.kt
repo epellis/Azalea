@@ -8,6 +8,7 @@ import com.linecorp.armeria.server.grpc.GrpcService
 import com.linecorp.armeria.server.logging.LoggingService
 import com.nedellis.azalea.health.HealthClient
 import com.nedellis.azalea.health.HealthServiceImpl
+import com.nedellis.azalea.registration.localAddress
 import com.typesafe.config.ConfigFactory
 import java.net.URI
 
@@ -16,11 +17,14 @@ fun main(args: Array<String>) {
     val healthClient = HealthClient()
     val config = ConfigFactory.load()
 
+    val port: Int = System.getenv("PORT").toInt() ?: config.getInt("azalea.port")
+
     // Setup components after server has started
     val initializer = object : ServerListenerAdapter() {
         override fun serverStarted(server: Server) {
+            val localAddress = localAddress()
             Azalea(
-                URI("gproto+http://127.0.0.1:${server.activeLocalPort()}/"),
+                URI("gproto+http://$localAddress:${server.activeLocalPort()}/"),
                 Children(healthServer, healthClient),
                 config
             )
@@ -32,6 +36,7 @@ fun main(args: Array<String>) {
         .supportedSerializationFormats(GrpcSerializationFormats.values())
         .build()
     val server = Server.builder()
+        .http(port)
         .service(healthService, LoggingService.newDecorator())
         .serviceUnder("/docs", DocService())
         .serverListener(initializer)

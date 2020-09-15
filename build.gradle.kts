@@ -16,7 +16,10 @@ plugins {
     kotlin("jvm") version "1.4.10"
     id("com.google.protobuf") version "0.8.13"
     id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("com.google.cloud.tools.jib") version "2.5.0"
 }
+
+jib.from.image = "https://registry.hub.docker.com://openjdk:14-alpine"
 
 buildscript {
     repositories {
