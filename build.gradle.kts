@@ -37,7 +37,10 @@ repositories {
     jcenter()
     mavenCentral()
 }
+
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+
     implementation("com.linecorp.armeria:armeria:1.0.0")
     implementation("com.linecorp.armeria:armeria-grpc:1.0.0")
     implementation("com.linecorp.armeria:armeria-kotlin:1.0.0")
@@ -49,6 +52,10 @@ dependencies {
     implementation("io.grpc:grpc-protobuf:$grpcVersion")
     implementation("io.grpc:grpc-stub:$grpcVersion")
     implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
+
+    implementation("redis.clients:jedis:3.3.0")
+
+    implementation("com.typesafe:config:1.4.0")
 
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion") // for kotest framework
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion") // for kotest core jvm assertions

@@ -4,9 +4,9 @@ import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
 option java_package = "com.nedellis.azalea";
-option java_outer_classname = "HelloWorldProto";
+option java_outer_classname = "HealthProto";
 
-package azalea;
+package health;
 
 message Table {
   map<string, int64> entries = 1;
