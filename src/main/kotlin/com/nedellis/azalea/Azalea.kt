@@ -2,9 +2,13 @@ package com.nedellis.azalea
 
 import com.nedellis.azalea.health.HealthClient
 import com.nedellis.azalea.health.HealthServiceImpl
-import com.nedellis.azalea.health.updateTheirTable
+import com.nedellis.azalea.health.incrementSelf
+import com.nedellis.azalea.health.updateOurTable
 import com.nedellis.azalea.registration.register
 import com.typesafe.config.Config
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.ticker
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,7 +31,7 @@ private val log = LoggerFactory.getLogger("Main")
 /**
  * Contain state and coordinate interactions between services
  */
-class Azalea(val address: URI, services: Children, val conf: Config) {
+class Azalea(val address: URI, private val services: Children, val config: Config) {
     private val tableLock = Mutex()
     private var table = Table.newBuilder().putEntries(address.toString(), 0).build()
 
@@ -35,7 +39,7 @@ class Azalea(val address: URI, services: Children, val conf: Config) {
         log.info("Starting Azalea Member at $address")
 
         services.forEach { it.provide(this) }
-        val members = register(address, URI(conf.getString("azalea.redis-uri")))
+        val members = register(address, URI(config.getString("azalea.redis-uri")))
         log.info("Other Members: $members")
         runBlocking {
             members.forEach { member ->
@@ -46,9 +50,26 @@ class Azalea(val address: URI, services: Children, val conf: Config) {
                 }
             }
         }
+
+        GlobalScope.launch { heartbeat() }
+    }
+
+    /**
+     * Every n milliseconds, increment heartbeat and broadcast to a random neighbor
+     */
+    private suspend fun heartbeat() {
+        val tickerChannel = ticker(delayMillis = config.getInt("azalea.heartbeat-interval-ms").toLong())
+        while (true) {
+            tickerChannel.receive()
+            tableLock.withLock {
+                table = table.incrementSelf(address.toString())
+            }
+            val neighbor = table.entriesMap.keys.filter { it != address.toString() }.random()
+            services.healthClient.updateTheirTable(URI(neighbor), table)
+        }
     }
 
     suspend fun updateOurTable(other: Table) = tableLock.withLock {
-        table = table.updateTheirTable(other)
+        table = table.updateOurTable(other)
     }
 }

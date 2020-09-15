@@ -8,18 +8,23 @@ class TableTest : StringSpec({
     "Single entry with empty merge" {
         val first = Table.newBuilder().putEntries("a", 1).build()
         val second = Table.newBuilder().build()
-        first.updateTheirTable(second).entries shouldBe mapOf("a" to 1)
+        first.updateOurTable(second).entries shouldBe mapOf("a" to 1)
     }
 
     "Empty entry with single merge" {
         val first = Table.newBuilder().putEntries("a", 1).build()
         val second = Table.newBuilder().build()
-        second.updateTheirTable(first).entries shouldBe mapOf("a" to 1)
+        second.updateOurTable(first).entries shouldBe mapOf("a" to 1)
     }
 
     "Single entry with Single merge" {
         val first = Table.newBuilder().putEntries("a", 1).build()
         val second = Table.newBuilder().putEntries("a", 2).build()
-        first.updateTheirTable(second).entries shouldBe mapOf("a" to 2)
+        first.updateOurTable(second).entries shouldBe mapOf("a" to 2)
+    }
+
+    "Increment Self" {
+        val table = Table.newBuilder().putEntries("a", 1).build()
+        table.incrementSelf("a").entries shouldBe mapOf("a" to 2)
     }
 })

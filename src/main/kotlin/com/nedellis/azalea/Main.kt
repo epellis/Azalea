@@ -22,9 +22,8 @@ fun main(args: Array<String>) {
     // Setup components after server has started
     val initializer = object : ServerListenerAdapter() {
         override fun serverStarted(server: Server) {
-            val localAddress = localAddress()
             Azalea(
-                URI("gproto+http://$localAddress:${server.activeLocalPort()}/"),
+                URI("gproto+http://${localAddress()}:${server.activeLocalPort()}/"),
                 Children(healthServer, healthClient),
                 config
             )

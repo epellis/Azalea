@@ -4,15 +4,10 @@ services:
   redis:
     image: redis
     container_name: redis
-  #    ports:
-  #      - "6379:6379"
   azalea:
     image: epelesis/azalea:latest
-    #    container_name: azalea
     environment:
       - PORT=8000
-    #    ports:
-    #      - "8000:8000"
     depends_on:
       - redis
     deploy:
