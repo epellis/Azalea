@@ -16,4 +16,5 @@ docker-compose --compatibility up
 ```
 docker login
 ./gradlew jib --image epelesis/azalea
+./gradlew jibDockerBuild --image epelesis/azalea
 ```

@@ -1,12 +1,9 @@
 package com.nedellis.azalea.health
 
 import com.google.protobuf.Empty
-import com.nedellis.azalea.Azalea
-import com.nedellis.azalea.AzaleaWrapper
-import com.nedellis.azalea.HealthGrpcKt
-import com.nedellis.azalea.Table
+import com.nedellis.azalea.*
 
-class HealthServiceImpl(val azw: AzaleaWrapper) : HealthGrpcKt.HealthCoroutineImplBase() {
+class HealthServiceImpl(val azw: AzaleaWrapper) : HealthGrpcKt.HealthCoroutineImplBase(), Logging {
 
     override suspend fun update(request: Table): Empty {
         azw.updateTable(request)

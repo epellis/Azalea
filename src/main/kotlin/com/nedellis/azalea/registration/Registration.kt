@@ -1,9 +1,9 @@
 package com.nedellis.azalea.registration
 
 import redis.clients.jedis.Jedis
+import java.net.DatagramSocket
+import java.net.InetAddress
 import java.net.URI
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 
 /**
  * Register this instance to the cluster and return a list of all other members

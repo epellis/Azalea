@@ -15,5 +15,4 @@ object HealthClient {
     )
 
     suspend fun updateTable(addr: URI, table: Table) = getConnection(addr).update(table)
-
 }
