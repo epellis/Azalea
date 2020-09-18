@@ -12,11 +12,13 @@ import com.nedellis.azalea.registration.register
 import com.typesafe.config.ConfigFactory
 import kotlinx.coroutines.runBlocking
 import java.net.URI
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 fun main(args: Array<String>) {
     val config = Config(ConfigFactory.load())
-    val azalea = AzaleaWrapper(config)
-    val healthServer = HealthServiceImpl(azalea)
+    val azaleaWrapper = AzaleaWrapper(config)
+    val healthServer = HealthServiceImpl(azaleaWrapper)
 
     val port: Int = System.getenv("PORT").toInt()
 
@@ -24,8 +26,9 @@ fun main(args: Array<String>) {
     val initializer = object : ServerListenerAdapter() {
         override fun serverStarted(server: Server) {
             runBlocking {
-                val az = azalea.init(URI("gproto+http://${localAddress()}:${server.activeLocalPort()}/"))
-                register(az.localAddress, config.redisURI)
+                val localAddress = URI("gproto+http://${localAddress()}:${server.activeLocalPort()}/")
+                azaleaWrapper.init(localAddress)
+                register(localAddress, config.redisURI)
             }
         }
     }

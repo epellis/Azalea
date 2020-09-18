@@ -1,16 +1,14 @@
 package com.nedellis.azalea.health
 
 import com.nedellis.azalea.Table
+import java.net.URI
 import kotlin.math.max
-
-class TableWrapper(private var table: Table) {
-}
 
 /**
  * Update this table with the other's entries.
  * If the entry is in both tables, keep the higher value
  */
-fun Table.updateOurTable(other: Table): Table {
+fun Table.merge(other: Table): Table {
     val ours = this.entriesMap.toMap()
     val theirs = other.entriesMap.toMap()
     val both = (ours.keys + theirs.keys)
@@ -19,18 +17,14 @@ fun Table.updateOurTable(other: Table): Table {
     return Table.newBuilder().putAllEntries(both).build()
 }
 
-fun Table.incrementSelf(localAddress: String): Table {
+fun Table.incrementSelf(localAddress: URI): Table {
     val ours = this.entriesMap.toMutableMap()
-    ours[localAddress] = ours[localAddress]?.inc()
+    ours[localAddress.toString()] = ours[localAddress.toString()]?.inc()
     return Table.newBuilder().putAllEntries(ours).build()
 }
 
-fun Table.copy(): Table {
-    return Table.newBuilder(this).build()
-}
-
-fun Table.randomNeighbor(localAddress: String): String {
-    return this.entriesMap.keys.filter { it != localAddress }.random()
+fun Table.randomNeighbor(localAddress: URI): URI? {
+    return this.entriesMap.keys.filter { it != localAddress.toString() }.randomOrNull()?.let { URI(it) }
 }
 
 /**
