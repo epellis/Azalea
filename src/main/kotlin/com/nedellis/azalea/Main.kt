@@ -1,6 +1,7 @@
 package com.nedellis.azalea
 
 import com.linecorp.armeria.common.HttpResponse
+import com.linecorp.armeria.common.HttpStatus
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats
 import com.linecorp.armeria.server.HttpService
 import com.linecorp.armeria.server.Server
@@ -13,6 +14,8 @@ import com.nedellis.azalea.health.HealthServiceImpl
 import com.nedellis.azalea.registration.localAddress
 import com.nedellis.azalea.registration.register
 import com.typesafe.config.ConfigFactory
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -26,6 +29,8 @@ fun main() {
     val healthServer = HealthServiceImpl(azaleaWrapper)
     val logger = LoggerFactory.getLogger("Main")
 
+    lateinit var job: Job
+
     val port: Int = System.getenv("PORT").toInt()
 
     // Setup components after server has started
@@ -36,10 +41,12 @@ fun main() {
             val neighbors = register(localAddress, config.redisURI)
             logger.info("Neighbors: $neighbors")
             runBlocking {
-                launch { azaleaWrapper.run() }
+                job = launch {
+                    launch { azaleaWrapper.run() }
 
-                neighbors.forEach { neighbor ->
-                    HealthClient.updateTable(neighbor, azaleaWrapper.table())
+                    neighbors.forEach { neighbor ->
+                        HealthClient.updateTable(neighbor, azaleaWrapper.table())
+                    }
                 }
             }
         }
@@ -53,7 +60,12 @@ fun main() {
         .http(port)
         .service(healthService, LoggingService.newDecorator())
         .serviceUnder("/docs", DocService())
-        .serviceUnder("/table", HttpService { _, _ -> HttpResponse.of(azaleaWrapper.table().toString()) })
+        .serviceUnder("/table") { _, _ -> HttpResponse.of(azaleaWrapper.table().toString()) }
+        .serviceUnder("/halt") { _, _ ->
+            logger.warn("Halting this Server!")
+            job.cancel()
+            HttpResponse.of(HttpStatus.OK)
+        }
         .serverListener(initializer)
         .build()
 
