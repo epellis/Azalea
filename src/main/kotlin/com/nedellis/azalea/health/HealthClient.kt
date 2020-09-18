@@ -1,21 +1,19 @@
 package com.nedellis.azalea.health
 
 import com.linecorp.armeria.client.Clients
-import com.nedellis.azalea.Azalea
 import com.nedellis.azalea.HealthGrpcKt
-import com.nedellis.azalea.Providable
 import com.nedellis.azalea.Table
 import java.net.URI
 import java.util.concurrent.ConcurrentHashMap
 
-class HealthClient : Providable {
-    override lateinit var parent: Azalea
+object HealthClient {
     private val connections = ConcurrentHashMap<URI, HealthGrpcKt.HealthCoroutineStub>()
 
-    suspend fun updateTheirTable(addr: URI, table: Table) {
-        connections.getOrDefault(
-            addr,
-            Clients.newClient(addr, HealthGrpcKt.HealthCoroutineStub::class.java)
-        ).update(table)
-    }
+    private fun getConnection(addr: URI) = connections.getOrDefault(
+        addr,
+        Clients.newClient(addr, HealthGrpcKt.HealthCoroutineStub::class.java)
+    )
+
+    suspend fun updateTable(addr: URI, table: Table) = getConnection(addr).update(table)
+
 }

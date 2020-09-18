@@ -3,6 +3,9 @@ package com.nedellis.azalea.health
 import com.nedellis.azalea.Table
 import kotlin.math.max
 
+class TableWrapper(private var table: Table) {
+}
+
 /**
  * Update this table with the other's entries.
  * If the entry is in both tables, keep the higher value
@@ -20,6 +23,14 @@ fun Table.incrementSelf(localAddress: String): Table {
     val ours = this.entriesMap.toMutableMap()
     ours[localAddress] = ours[localAddress]?.inc()
     return Table.newBuilder().putAllEntries(ours).build()
+}
+
+fun Table.copy(): Table {
+    return Table.newBuilder(this).build()
+}
+
+fun Table.randomNeighbor(localAddress: String): String {
+    return this.entriesMap.keys.filter { it != localAddress }.random()
 }
 
 /**

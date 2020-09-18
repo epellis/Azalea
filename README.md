@@ -9,7 +9,7 @@ Docker Compose:
 ```
 docker-compose rm
 docker-compose pull
-docker-compose --compatibility --abort-on-container-exit up
+docker-compose --compatibility up
 ```
 
 ## Build

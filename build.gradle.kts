@@ -60,6 +60,8 @@ dependencies {
 
     implementation("com.typesafe:config:1.4.0")
 
+    testImplementation("io.mockk:mockk:1.10.0")
+
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion") // for kotest framework
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion") // for kotest core jvm assertions
     testImplementation("io.kotest:kotest-property:$kotestVersion") // for kotest property test
