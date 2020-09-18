@@ -1,9 +1,6 @@
 package com.nedellis.azalea
 
-import com.nedellis.azalea.health.HealthClient
-import com.nedellis.azalea.health.incrementSelf
-import com.nedellis.azalea.health.merge
-import com.nedellis.azalea.health.randomNeighbor
+import com.nedellis.azalea.health.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,13 +22,25 @@ class AzaleaWrapper(private val config: Config) : Logging {
 
     @ExperimentalTime
     suspend fun run() = coroutineScope {
+        // Gossip Loop
         launch {
             while (true) {
                 delay(config.heartbeatInterval)
                 azalea.table.randomNeighbor(azalea.localAddress)?.let { neighbor ->
                     updateTable(azalea.table.incrementSelf(azalea.localAddress))
-                    logger().info("Broadcasting table to $neighbor")
                     HealthClient.updateTable(neighbor, azalea.table)
+                }
+            }
+        }
+
+        // Prune Loop
+        launch {
+            while (true) {
+                val oldTable = azalea.table
+                delay(config.failInterval)
+                val stale = azalea.table.stale(oldTable)
+                if (stale.isNotEmpty()) {
+                    logger().info("Stale: $stale, Old: $oldTable Table: ${azalea.table}")
                 }
             }
         }

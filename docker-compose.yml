@@ -12,4 +12,6 @@ services:
       - redis
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 5
+    ports:
+      - 8000

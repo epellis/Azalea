@@ -28,9 +28,8 @@ fun Table.randomNeighbor(localAddress: URI): URI? {
 }
 
 /**
- * Return a new table with all elements in [this] that are at least 1 heartbeat higher than [old]
+ * Return all elements in [this] that have equal or less heartbeat than their entries in [old]
  */
-fun Table.pruneStale(old: Table): Table {
-    val new = this.entriesMap.toMap().filter { it.value > old.entriesMap[it.key] ?: -1 }
-    return Table.newBuilder().putAllEntries(new).build()
+fun Table.stale(old: Table): Set<String> {
+    return this.entriesMap.toMap().filter { it.value <= old.entriesMap[it.key] ?: -1 }.keys
 }

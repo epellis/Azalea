@@ -1,6 +1,8 @@
 package com.nedellis.azalea
 
+import com.linecorp.armeria.common.HttpResponse
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats
+import com.linecorp.armeria.server.HttpService
 import com.linecorp.armeria.server.Server
 import com.linecorp.armeria.server.ServerListenerAdapter
 import com.linecorp.armeria.server.docs.DocService
@@ -51,6 +53,7 @@ fun main() {
         .http(port)
         .service(healthService, LoggingService.newDecorator())
         .serviceUnder("/docs", DocService())
+        .serviceUnder("/table", HttpService { _, _ -> HttpResponse.of(azaleaWrapper.table().toString()) })
         .serverListener(initializer)
         .build()
 

@@ -9,10 +9,10 @@ import java.util.concurrent.ConcurrentHashMap
 object HealthClient {
     private val connections = ConcurrentHashMap<URI, HealthGrpcKt.HealthCoroutineStub>()
 
-    private fun getConnection(addr: URI) = connections.getOrDefault(
-        addr,
-        Clients.newClient(addr, HealthGrpcKt.HealthCoroutineStub::class.java)
+    private fun getConnection(address: URI) = connections.getOrDefault(
+        address,
+        Clients.newClient(address, HealthGrpcKt.HealthCoroutineStub::class.java)
     )
 
-    suspend fun updateTable(addr: URI, table: Table) = getConnection(addr).update(table)
+    suspend fun updateTable(address: URI, table: Table) = getConnection(address).update(table)
 }

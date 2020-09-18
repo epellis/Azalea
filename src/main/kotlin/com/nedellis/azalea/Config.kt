@@ -11,4 +11,7 @@ class Config(config: Config) {
 
     @ExperimentalTime
     val heartbeatInterval = config.getLong("azalea.heartbeat-interval-ms").toDuration(TimeUnit.MILLISECONDS)
+
+    @ExperimentalTime
+    val failInterval = config.getLong("azalea.fail-interval-ms").toDuration(TimeUnit.MILLISECONDS)
 }
