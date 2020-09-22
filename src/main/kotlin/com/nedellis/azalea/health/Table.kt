@@ -30,6 +30,22 @@ fun Table.randomNeighbor(localAddress: URI): URI? {
 /**
  * Return all elements in [this] that have equal or less heartbeat than their entries in [old]
  */
-fun Table.stale(old: Table): Set<String> {
-    return this.entriesMap.toMap().filter { it.value <= old.entriesMap[it.key] ?: -1 }.keys
+fun Table.stale(old: Table): Map<String, Long> {
+    return this.entriesMap.toMap().filter { it.value <= old.entriesMap[it.key] ?: -1 }
+}
+
+/**
+ * Return a copy of [this] with all elements that:
+ * - Are not in [marked]
+ * OR
+ * - Are in [marked] but have a higher value
+ */
+fun Table.prune(marked: Map<String, Long>): Table {
+    val new = this.entriesMap.toMap().filter { !marked.containsKey(it.key) || it.value > marked[it.key] ?: -1 }
+    return Table.newBuilder().putAllEntries(new).build()
+}
+
+fun Table.markAndPrune(newer: Table, older: Table): Table {
+    val marked = newer.stale(older)
+    return this.prune(marked)
 }

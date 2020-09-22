@@ -3,7 +3,6 @@ package com.nedellis.azalea
 import com.linecorp.armeria.common.HttpResponse
 import com.linecorp.armeria.common.HttpStatus
 import com.linecorp.armeria.common.grpc.GrpcSerializationFormats
-import com.linecorp.armeria.server.HttpService
 import com.linecorp.armeria.server.Server
 import com.linecorp.armeria.server.ServerListenerAdapter
 import com.linecorp.armeria.server.docs.DocService
@@ -15,7 +14,6 @@ import com.nedellis.azalea.registration.localAddress
 import com.nedellis.azalea.registration.register
 import com.typesafe.config.ConfigFactory
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
