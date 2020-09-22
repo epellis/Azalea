@@ -14,16 +14,20 @@ import com.nedellis.azalea.registration.localAddress
 import com.nedellis.azalea.registration.register
 import com.typesafe.config.ConfigFactory
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
+import java.lang.Exception
 import java.net.URI
+import kotlin.random.Random
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
 fun main() {
     val config = Config(ConfigFactory.load())
-    val azaleaWrapper = AzaleaWrapper(config)
+    val healthClient = HealthClient(config)
+    val azaleaWrapper = AzaleaWrapper(config, healthClient)
     val healthServer = HealthServiceImpl(azaleaWrapper)
     val logger = LoggerFactory.getLogger("Main")
 
@@ -43,7 +47,7 @@ fun main() {
                     launch { azaleaWrapper.run() }
 
                     neighbors.forEach { neighbor ->
-                        HealthClient.updateTable(neighbor, azaleaWrapper.table())
+                        healthClient.updateTable(neighbor, azaleaWrapper.table())
                     }
                 }
             }

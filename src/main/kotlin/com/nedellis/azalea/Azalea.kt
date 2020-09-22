@@ -13,7 +13,7 @@ import kotlin.time.ExperimentalTime
 
 /* ktlint-enable no-wildcard-imports */
 
-class AzaleaWrapper(private val config: Config) : Logging {
+class AzaleaWrapper(private val config: Config, private val healthClient: HealthClient) : Logging {
     private lateinit var azalea: Azalea
     private val lock = Mutex()
 
@@ -32,7 +32,7 @@ class AzaleaWrapper(private val config: Config) : Logging {
                 delay(config.heartbeatInterval)
                 azalea.table.randomNeighbor(azalea.localAddress)?.let { neighbor ->
                     updateTable(azalea.table.incrementSelf(azalea.localAddress))
-                    HealthClient.updateTable(neighbor, azalea.table)
+                    healthClient.updateTable(neighbor, azalea.table)
                 }
             }
         }
@@ -45,20 +45,20 @@ class AzaleaWrapper(private val config: Config) : Logging {
             delay(config.failInterval)
 
             while (true) {
-                history.add(azalea.table) // Add old table...
+                history.addFirst(azalea.table) // Add old table...
                 delay(config.failInterval) // Wait until next cycle...
-                val oldestTable = history.removeLast()
+                val newTable = azalea.table.markAndPrune(history.elementAt(0), history.elementAt(1))
+                if (newTable.entriesMap.keys != azalea.table.entriesMap.keys) {
+                    logger().warn("History: $history Old: ${azalea.table} New: $newTable")
+                }
+                replaceTable(newTable)
+                history.removeLast()
             }
-//            while (true) {
-//                oldTable = azalea.table
-//                delay(config.failInterval)
-//                var pruned = stale
-//                stale = azalea.table.stale(oldTable)
-//                if (pruned.isNotEmpty()) {
-//                    logger().info("Stale: $stale, Old: $oldTable Table: ${azalea.table}")
-//                }
-//            }
         }
+    }
+
+    private suspend fun replaceTable(other: Table) = lock.withLock {
+        azalea = azalea.withTable(other)
     }
 
     suspend fun updateTable(other: Table) = lock.withLock {
@@ -73,4 +73,5 @@ class AzaleaWrapper(private val config: Config) : Logging {
  */
 data class Azalea(val localAddress: URI, val table: Table) {
     fun updateTable(other: Table) = this.copy(table = table.merge(other))
+    fun withTable(other: Table) = this.copy(table = other)
 }

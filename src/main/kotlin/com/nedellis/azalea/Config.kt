@@ -14,4 +14,9 @@ class Config(config: Config) {
 
     @ExperimentalTime
     val failInterval = config.getLong("azalea.fail-interval-ms").toDuration(TimeUnit.MILLISECONDS)
+
+    @ExperimentalTime
+    val updateTableTimeout = config.getLong("azalea.update-table-timeout-ms").toDuration(TimeUnit.MILLISECONDS)
+
+    val isStrict = config.getBoolean("azalea.strict")
 }
